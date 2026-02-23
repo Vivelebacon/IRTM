@@ -1,0 +1,233 @@
+﻿@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap");
+
+:root {
+  --font-body: "Inter", "Segoe UI", Tahoma, sans-serif;
+  --font-heading: "Sora", "Inter", "Segoe UI", sans-serif;
+  --surface: #ffffff;
+  --surface-soft: #f8f9fb;
+  --ink: #16181d;
+  --ink-muted: #4f5a66;
+  --line: rgba(19, 26, 34, 0.12);
+  --lift-shadow: 0 14px 34px rgba(20, 27, 39, 0.12);
+  --card-shadow: 0 10px 26px rgba(20, 27, 39, 0.08);
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --transition-smooth: 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html,
+body,
+.x,
+.x .x-el,
+.x input,
+.x select,
+.x textarea,
+.x button {
+  font-family: var(--font-body) !important;
+  color: var(--ink);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.x h1,
+.x h2,
+.x h3,
+.x h4,
+.x h5,
+.x h6,
+.x [data-ux*="Heading"] {
+  font-family: var(--font-heading) !important;
+  letter-spacing: -0.015em;
+  line-height: 1.18;
+  color: var(--ink);
+}
+
+.x [data-ux="Nav"] a,
+.x [data-ux="Nav"] span,
+.x [data-ux="NavLink"],
+.x [data-ux="NavLinkActive"],
+.x [data-ux="NavMenuLink"],
+.x [data-ux="NavMenuLinkActive"],
+.x [data-aid="NAV_DROPDOWN"],
+.x [data-aid="HAMBURGER_MENU_LINK"] {
+  font-family: var(--font-heading) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+}
+
+.x [data-stickynav="true"] {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.x section[data-ux="Section"]:not([data-aid="HEADER_SECTION"]) {
+  padding-top: clamp(40px, 5vw, 72px) !important;
+  padding-bottom: clamp(40px, 5vw, 72px) !important;
+}
+
+.x p,
+.x [data-typography*="Body"] {
+  color: var(--ink-muted);
+  line-height: 1.7;
+}
+
+.x [data-ux-btn],
+.x .x-el-button,
+.x button[type="submit"],
+.x a[data-ux="ButtonPrimary"],
+.x a[data-ux="ButtonSecondary"] {
+  border-radius: 999px !important;
+  padding: 0.72rem 1.4rem !important;
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), filter var(--transition-smooth) !important;
+  box-shadow: 0 8px 22px rgba(15, 19, 29, 0.14);
+}
+
+.x [data-ux-btn]:hover,
+.x .x-el-button:hover,
+.x button[type="submit"]:hover,
+.x a[data-ux="ButtonPrimary"]:hover,
+.x a[data-ux="ButtonSecondary"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(15, 19, 29, 0.2);
+  filter: saturate(1.03);
+}
+
+.x [data-ux="GridCell"],
+.x [data-aid*="_CELL_RENDERED"],
+.x [data-aid*="_CARD_RENDERED"] {
+  border-radius: var(--radius-md);
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
+}
+
+.x [data-ux="GridCell"]:hover,
+.x [data-aid*="_CELL_RENDERED"]:hover,
+.x [data-aid*="_CARD_RENDERED"]:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow);
+}
+
+.x a[data-typography="LinkAlpha"]:not([data-ux-btn]):not([data-ux="ButtonPrimary"]):not([data-ux="ButtonSecondary"]) {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size var(--transition-smooth), color var(--transition-smooth);
+}
+
+.x a[data-typography="LinkAlpha"]:not([data-ux-btn]):not([data-ux="ButtonPrimary"]):not([data-ux="ButtonSecondary"]):hover,
+.x a[data-typography="LinkAlpha"]:not([data-ux-btn]):not([data-ux="ButtonPrimary"]):not([data-ux="ButtonSecondary"]):focus-visible {
+  background-size: 100% 1px;
+}
+
+.reveal-item {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 640ms ease, transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal-item.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.partner-carousel {
+  margin-top: clamp(14px, 2vw, 24px);
+}
+
+.partner-carousel__viewport {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  padding: 8px 2px;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.partner-carousel__viewport:focus-visible {
+  outline: 2px solid rgba(70, 120, 255, 0.45);
+  outline-offset: 4px;
+}
+
+.partner-carousel__viewport.is-dragging {
+  cursor: grabbing;
+}
+
+.partner-carousel__track {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(12px, 2vw, 20px);
+  width: max-content;
+}
+
+.partner-carousel__item {
+  flex: 0 0 auto;
+  width: clamp(128px, 18vw, 220px);
+}
+
+.partner-carousel__card {
+  min-height: 104px;
+  height: 100%;
+  padding: clamp(12px, 1.8vw, 18px);
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%);
+  box-shadow: 0 8px 22px rgba(18, 24, 36, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
+}
+
+.partner-carousel__card:hover,
+.partner-carousel__card:focus-visible {
+  transform: translateY(-3px) scale(1.015);
+  border-color: rgba(34, 54, 94, 0.28);
+  box-shadow: var(--lift-shadow);
+}
+
+.partner-carousel__logo {
+  max-width: 100%;
+  max-height: 56px;
+  object-fit: contain;
+  display: block;
+}
+
+.partner-carousel.is-reduced-motion .partner-carousel__viewport {
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+.partner-carousel.is-reduced-motion .partner-carousel__track {
+  width: auto;
+}
+
+.partner-carousel.is-reduced-motion .partner-carousel__item {
+  scroll-snap-align: start;
+}
+
+@media (max-width: 768px) {
+  .partner-carousel__item {
+    width: clamp(112px, 42vw, 170px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-item {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
