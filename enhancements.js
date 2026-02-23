@@ -342,6 +342,128 @@
   const init = () => {
     revealOnScroll();
     initPartnerCarousels();
+    initChatbot();
+  };
+
+  const initChatbot = () => {
+    if (document.querySelector(".itrm-chatbot")) return;
+
+    const getKnowledgeChunks = () => {
+      const nodes = queryAll("h1, h2, h3, h4, p, li");
+      const chunks = [];
+      const seen = new Set();
+      nodes.forEach((node) => {
+        const text = (node.textContent || "").replace(/\s+/g, " ").trim();
+        if (text.length < 24) return;
+        if (text.length > 380) return;
+        if (seen.has(text)) return;
+        seen.add(text);
+        chunks.push(text);
+      });
+      return chunks.slice(0, 280);
+    };
+
+    const extractContacts = () => {
+      const phone = queryAll("a[href^='tel:']")[0]?.textContent?.trim();
+      const address = queryAll("[data-aid='FOOTER_ADDRESS_RENDERED'], p")
+        .map((el) => (el.textContent || "").trim())
+        .find((t) => /,\s*GA\b|Winder/i.test(t));
+      return { phone, address };
+    };
+
+    const knowledge = getKnowledgeChunks();
+    const contacts = extractContacts();
+
+    const tokenize = (text) =>
+      (text || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .split(/\s+/)
+        .filter((w) => w.length > 2);
+
+    const scoreChunk = (queryTokens, chunk) => {
+      const words = tokenize(chunk);
+      if (!words.length) return 0;
+      const wordSet = new Set(words);
+      let score = 0;
+      queryTokens.forEach((token) => {
+        if (wordSet.has(token)) score += 1;
+      });
+      return score;
+    };
+
+    const answer = (question) => {
+      const q = (question || "").trim();
+      if (!q) return "Posez-moi une question sur le site (services, contact, candidatures, partenaires, etc.).";
+
+      const lower = q.toLowerCase();
+      if (/phone|tel|contact|num|appel|telephone/.test(lower) && contacts.phone) {
+        return `Vous pouvez les contacter au ${contacts.phone}.`;
+      }
+      if (/adresse|address|where|location|localisation/.test(lower) && contacts.address) {
+        return `Adresse trouvée sur le site: ${contacts.address}`;
+      }
+
+      const tokens = tokenize(q);
+      const ranked = knowledge
+        .map((chunk) => ({ chunk, score: scoreChunk(tokens, chunk) }))
+        .filter((item) => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 2);
+
+      if (!ranked.length) {
+        return "Je n’ai pas trouvé d’info précise dans cette page. Essayez avec des mots-clés comme services, apply, employers, job seekers, contact.";
+      }
+
+      return ranked.map((r) => r.chunk).join(" ");
+    };
+
+    const root = document.createElement("div");
+    root.className = "itrm-chatbot";
+    root.innerHTML = `
+      <div class="itrm-chatbot__panel" role="dialog" aria-label="ITRM Chatbot">
+        <div class="itrm-chatbot__head">ITRM Assistant</div>
+        <div class="itrm-chatbot__msgs" id="itrmChatMsgs">
+          <p class="itrm-chatbot__msg bot">Bonjour. Je peux répondre aux questions basiques à partir du contenu de cette page.</p>
+        </div>
+        <form class="itrm-chatbot__form" id="itrmChatForm">
+          <input class="itrm-chatbot__input" id="itrmChatInput" type="text" placeholder="Posez votre question..." />
+          <button class="itrm-chatbot__send" type="submit">Envoyer</button>
+        </form>
+      </div>
+      <button class="itrm-chatbot__toggle" type="button" id="itrmChatToggle" aria-expanded="false">Chat</button>
+    `;
+    document.body.appendChild(root);
+
+    const panel = root.querySelector(".itrm-chatbot__panel");
+    const toggle = root.querySelector("#itrmChatToggle");
+    const form = root.querySelector("#itrmChatForm");
+    const input = root.querySelector("#itrmChatInput");
+    const msgs = root.querySelector("#itrmChatMsgs");
+
+    const addMsg = (text, role) => {
+      const p = document.createElement("p");
+      p.className = `itrm-chatbot__msg ${role}`;
+      p.textContent = text;
+      msgs.appendChild(p);
+      msgs.scrollTop = msgs.scrollHeight;
+    };
+
+    toggle.addEventListener("click", () => {
+      const open = root.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", String(open));
+      if (open) input.focus();
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
+      addMsg(q, "user");
+      const a = answer(q);
+      addMsg(a, "bot");
+      input.value = "";
+    });
   };
 
   if (document.readyState === "loading") {
