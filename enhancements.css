@@ -1,8 +1,9 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap");
+﻿@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=Playfair+Display:wght@600;700&display=swap");
 
 :root {
   --font-body: "Inter", "Segoe UI", Tahoma, sans-serif;
   --font-heading: "Sora", "Inter", "Segoe UI", sans-serif;
+  --font-hero: "Playfair Display", "Sora", Georgia, serif;
   --surface: #ffffff;
   --surface-soft: #f8f9fb;
   --ink: #16181d;
@@ -77,6 +78,22 @@ body,
   vertical-align: middle !important;
 }
 
+@media (min-width: 768px) {
+  .x [data-ux="Header"] [data-aid="HEADER_LOGO_IMAGE_RENDERED"] {
+    height: 64px !important;
+    max-height: 64px !important;
+    width: auto !important;
+  }
+
+  .x [data-ux="Header"] [data-aid="HEADER_LOGO_RENDERED"] {
+    transform: translateY(-8px);
+  }
+
+  .x [data-ux="Header"] [id^="navBarId-"] {
+    align-items: center !important;
+  }
+}
+
 .x section[data-ux="Section"]:not([data-aid="HEADER_SECTION"]) {
   padding-top: clamp(40px, 5vw, 72px) !important;
   padding-bottom: clamp(40px, 5vw, 72px) !important;
@@ -86,6 +103,24 @@ body,
 .x [data-typography*="Body"] {
   color: var(--ink-muted);
   line-height: 1.7;
+}
+
+.x h1,
+.x [data-typography="HeadingAlpha"],
+.x [data-typography="HeadingBeta"] {
+  font-family: var(--font-hero) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-size: clamp(2rem, 5vw, 3.6rem) !important;
+  text-wrap: balance;
+}
+
+.x [data-aid="HEADER_SECTION"] h1,
+.x [data-aid="HEADER_SECTION"] [data-typography="HeadingAlpha"],
+.x [data-aid="HEADER_SECTION"] [data-typography="HeadingBeta"] {
+  color: #ffffff !important;
+  text-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
 }
 
 .x [data-ux-btn],

@@ -188,6 +188,20 @@
       paused = false;
     };
 
+    const ensureLoopFill = () => {
+      const children = Array.from(track.children);
+      if (!children.length) return;
+      let guard = 0;
+      // Ensure there is enough content width to produce visible marquee motion.
+      while (track.scrollWidth < viewport.clientWidth * 2.4 && guard < 20) {
+        children.forEach((child) => track.appendChild(child.cloneNode(true)));
+        guard += 1;
+      }
+    };
+
+    ensureLoopFill();
+    window.addEventListener("resize", ensureLoopFill, { passive: true });
+
     const loop = (ts) => {
       if (!last) last = ts;
       const dt = ts - last;
