@@ -60,6 +60,23 @@ body,
   -webkit-backdrop-filter: blur(12px);
 }
 
+.x [data-ux="Header"] [data-ux="Nav"] {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.x [data-ux="Header"] [data-aid="HEADER_LOGO_RENDERED"] {
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+}
+
+.x [data-ux="Header"] [data-aid="HEADER_LOGO_IMAGE_RENDERED"] {
+  display: block !important;
+  margin: 0 !important;
+  vertical-align: middle !important;
+}
+
 .x section[data-ux="Section"]:not([data-aid="HEADER_SECTION"]) {
   padding-top: clamp(40px, 5vw, 72px) !important;
   padding-bottom: clamp(40px, 5vw, 72px) !important;
@@ -87,8 +104,8 @@ body,
 .x button[type="submit"]:hover,
 .x a[data-ux="ButtonPrimary"]:hover,
 .x a[data-ux="ButtonSecondary"]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(15, 19, 29, 0.2);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 14px 30px rgba(15, 19, 29, 0.24);
   filter: saturate(1.03);
 }
 
@@ -102,8 +119,8 @@ body,
 .x [data-ux="GridCell"]:hover,
 .x [data-aid*="_CELL_RENDERED"]:hover,
 .x [data-aid*="_CARD_RENDERED"]:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--card-shadow);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--lift-shadow);
 }
 
 .x a[data-typography="LinkAlpha"]:not([data-ux-btn]):not([data-ux="ButtonPrimary"]):not([data-ux="ButtonSecondary"]) {
@@ -122,8 +139,8 @@ body,
 
 .reveal-item {
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 640ms ease, transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(24px);
+  transition: opacity 760ms ease, transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -184,9 +201,9 @@ body,
 
 .partner-carousel__card:hover,
 .partner-carousel__card:focus-visible {
-  transform: translateY(-3px) scale(1.015);
+  transform: translateY(-5px) scale(1.025);
   border-color: rgba(34, 54, 94, 0.28);
-  box-shadow: var(--lift-shadow);
+  box-shadow: 0 16px 34px rgba(20, 27, 39, 0.18);
 }
 
 .partner-carousel__logo {

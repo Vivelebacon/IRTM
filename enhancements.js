@@ -55,19 +55,53 @@
   };
 
   const collectPartnerItems = (scope) => {
-    const anchorsWithImages = queryAll("a", scope).filter((a) => a.querySelector("img"));
-    const rawNodes = anchorsWithImages.length ? anchorsWithImages : queryAll("img", scope);
+    const linkedNodes = queryAll("a", scope).filter((a) => a.querySelector("img"));
+    const standaloneImageNodes = queryAll("img", scope)
+      .filter((img) => !img.closest("a"))
+      .map((img) => img);
+    const rawNodes = [...linkedNodes, ...standaloneImageNodes];
 
     const seen = new Set();
     const items = [];
+
+    const extractFromSrcset = (value) => {
+      if (!value) return "";
+      const parts = String(value)
+        .split(",")
+        .map((part) => part.trim().split(/\s+/)[0])
+        .filter(Boolean);
+      return parts.find((src) => !looksLikePlaceholder(src)) || "";
+    };
+
+    const resolveImageSource = (img) => {
+      const picture = img.closest("picture");
+      const sourceTag = picture ? picture.querySelector("source") : null;
+      const candidates = [
+        img.getAttribute("data-srclazy"),
+        img.getAttribute("data-src"),
+        img.getAttribute("data-original"),
+        img.getAttribute("src"),
+        img.getAttribute("srcset"),
+        sourceTag ? sourceTag.getAttribute("srcset") : "",
+        picture ? picture.getAttribute("data-srclazy") : "",
+      ];
+
+      for (const candidate of candidates) {
+        if (!candidate) continue;
+        const parsed = candidate.includes(",") || candidate.includes(" ")
+          ? extractFromSrcset(candidate)
+          : candidate;
+        const src = normalizeAssetUrl(parsed);
+        if (src && !looksLikePlaceholder(src)) return src;
+      }
+      return "";
+    };
 
     rawNodes.forEach((node) => {
       const img = node.tagName === "IMG" ? node : node.querySelector("img");
       if (!img) return;
 
-      const src = normalizeAssetUrl(
-        img.getAttribute("data-srclazy") || img.getAttribute("data-src") || img.getAttribute("src") || ""
-      );
+      const src = resolveImageSource(img);
       if (!src || looksLikePlaceholder(src)) return;
 
       const href = node.tagName === "A" ? node.getAttribute("href") || "" : "";
@@ -92,7 +126,7 @@
 
   const removeLegacyPartnerLayout = (section) => {
     const targets = queryAll(
-      '[data-aid="LOGO_ROWS_CONTAINER"], [id^="gallery4-"], [data-aid^="GALLERY_IMAGE"][data-aid$="_CELL_RENDERED"]',
+      '[data-aid="LOGO_ROWS_CONTAINER"], [id^="gallery4-"], [data-aid^="GALLERY_IMAGE"], [data-aid^="GALLERY_IMAGE"][data-aid$="_CELL_RENDERED"], [data-ux="Element"][id^="bs-9"]',
       section
     );
     if (!targets.length) return;
@@ -144,7 +178,7 @@
     let startX = 0;
     let startScroll = 0;
     let dragMoved = false;
-    const speedPxPerMs = 0.042;
+    const speedPxPerMs = 0.052;
 
     const pause = () => {
       paused = true;
@@ -270,6 +304,14 @@
 
     if (!reducedMotion) {
       enableCarouselMotion(carousel, viewport, track);
+    }
+
+    if (/premier(e)?\s+partners/i.test(label)) {
+      // Keep the section title and carousel only.
+      queryAll(
+        '[data-aid="LOGO_ROWS_CONTAINER"], [id^="gallery4-"], [data-aid^="GALLERY_IMAGE"], [data-ux="Element"][id^="bs-9"]',
+        section
+      ).forEach((el) => el.remove());
     }
 
     section.dataset.partnerCarouselEnhanced = "1";
