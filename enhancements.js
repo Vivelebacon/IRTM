@@ -339,9 +339,39 @@
     buildPartnerCarousel(premierPartnersSection, "Premier Partners");
   };
 
+  const removeGodaddyWatermark = () => {
+    const selectors = [
+      '[data-aid="FOOTER_POWERED_BY_AIRO_RENDERED"]',
+      '[data-aid="FOOTER_POWERED_BY_AIRO_RENDERED_LINK"]',
+      'a[href*="godaddy"]',
+      'a[href*="airo"]',
+      '[class*="powered"][class*="airo"]',
+    ];
+
+    selectors.forEach((selector) => {
+      queryAll(selector).forEach((node) => {
+        const block =
+          node.closest('[data-aid*="FOOTER_POWERED_BY_AIRO"]') ||
+          node.closest('[data-aid="FOOTER_TEXT_RENDERED"]') ||
+          node.closest("p") ||
+          node;
+        block.remove();
+      });
+    });
+
+    queryAll("footer p, footer div").forEach((node) => {
+      const text = (node.textContent || "").toLowerCase();
+      if (!text) return;
+      if (text.includes("powered by") && (text.includes("godaddy") || text.includes("airo"))) {
+        node.remove();
+      }
+    });
+  };
+
   const init = () => {
     revealOnScroll();
     initPartnerCarousels();
+    removeGodaddyWatermark();
     initChatbot();
   };
 
@@ -354,8 +384,7 @@
       const seen = new Set();
       nodes.forEach((node) => {
         const text = (node.textContent || "").replace(/\s+/g, " ").trim();
-        if (text.length < 24) return;
-        if (text.length > 380) return;
+        if (text.length < 24 || text.length > 380) return;
         if (seen.has(text)) return;
         seen.add(text);
         chunks.push(text);
@@ -394,14 +423,14 @@
 
     const answer = (question) => {
       const q = (question || "").trim();
-      if (!q) return "Posez-moi une question sur le site (services, contact, candidatures, partenaires, etc.).";
+      if (!q) return "Ask me about services, hiring, job seekers, partners, payments, or contact details.";
 
       const lower = q.toLowerCase();
-      if (/phone|tel|contact|num|appel|telephone/.test(lower) && contacts.phone) {
-        return `Vous pouvez les contacter au ${contacts.phone}.`;
+      if (/phone|tel|contact|num|call|telephone/.test(lower) && contacts.phone) {
+        return `You can contact the team at ${contacts.phone}.`;
       }
-      if (/adresse|address|where|location|localisation/.test(lower) && contacts.address) {
-        return `Adresse trouvée sur le site: ${contacts.address}`;
+      if (/address|where|location|located/.test(lower) && contacts.address) {
+        return `The address shown on the website is: ${contacts.address}`;
       }
 
       const tokens = tokenize(q);
@@ -412,34 +441,54 @@
         .slice(0, 2);
 
       if (!ranked.length) {
-        return "Je n’ai pas trouvé d’info précise dans cette page. Essayez avec des mots-clés comme services, apply, employers, job seekers, contact.";
+        return "I could not find a precise match in this page. Try keywords like services, employers, job seekers, apply, partners, payment, or contact.";
       }
 
       return ranked.map((r) => r.chunk).join(" ");
     };
 
+    const quickQuestions = [
+      "What services does ITRM provide?",
+      "How can employers request staff?",
+      "How do job seekers apply?",
+      "Who are the premier partners?",
+      "Where is the company located?",
+      "What is the main contact number?",
+    ];
+
     const root = document.createElement("div");
     root.className = "itrm-chatbot";
     root.innerHTML = `
       <div class="itrm-chatbot__panel" role="dialog" aria-label="ITRM Chatbot">
-        <div class="itrm-chatbot__head">ITRM Assistant</div>
+        <div class="itrm-chatbot__head">
+          <span>ITRM Assistant</span>
+          <span class="itrm-chatbot__subtitle">Website Help</span>
+        </div>
+        <div class="itrm-chatbot__quick" id="itrmChatQuick">
+          <p class="itrm-chatbot__quicktitle">Popular questions</p>
+        </div>
         <div class="itrm-chatbot__msgs" id="itrmChatMsgs">
-          <p class="itrm-chatbot__msg bot">Bonjour. Je peux répondre aux questions basiques à partir du contenu de cette page.</p>
+          <p class="itrm-chatbot__msg bot">Hi, I can answer basic questions using this website content.</p>
         </div>
         <form class="itrm-chatbot__form" id="itrmChatForm">
-          <input class="itrm-chatbot__input" id="itrmChatInput" type="text" placeholder="Posez votre question..." />
-          <button class="itrm-chatbot__send" type="submit">Envoyer</button>
+          <input class="itrm-chatbot__input" id="itrmChatInput" type="text" placeholder="Ask about services, hiring, contact..." />
+          <button class="itrm-chatbot__send" type="submit">Send</button>
         </form>
       </div>
-      <button class="itrm-chatbot__toggle" type="button" id="itrmChatToggle" aria-expanded="false">Chat</button>
+      <button class="itrm-chatbot__toggle" type="button" id="itrmChatToggle" aria-expanded="false" aria-label="Open chatbot">
+        <svg class="itrm-chatbot__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 7.5c0-2 1.7-3.5 3.8-3.5h6.4C17.3 4 19 5.5 19 7.5v4.2c0 2-1.7 3.5-3.8 3.5h-4.3L7 18.5v-3.3c-1.2-.5-2-1.8-2-3.2V7.5z"></path>
+          <path d="M8.5 9.5h7M8.5 12h4.5"></path>
+        </svg>
+      </button>
     `;
     document.body.appendChild(root);
 
-    const panel = root.querySelector(".itrm-chatbot__panel");
     const toggle = root.querySelector("#itrmChatToggle");
     const form = root.querySelector("#itrmChatForm");
     const input = root.querySelector("#itrmChatInput");
     const msgs = root.querySelector("#itrmChatMsgs");
+    const quick = root.querySelector("#itrmChatQuick");
 
     const addMsg = (text, role) => {
       const p = document.createElement("p");
@@ -448,6 +497,21 @@
       msgs.appendChild(p);
       msgs.scrollTop = msgs.scrollHeight;
     };
+
+    const askQuestion = (q) => {
+      if (!q) return;
+      addMsg(q, "user");
+      addMsg(answer(q), "bot");
+    };
+
+    quickQuestions.forEach((question) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "itrm-chatbot__chip";
+      chip.textContent = question;
+      chip.addEventListener("click", () => askQuestion(question));
+      quick.appendChild(chip);
+    });
 
     toggle.addEventListener("click", () => {
       const open = root.classList.toggle("open");
@@ -459,9 +523,7 @@
       event.preventDefault();
       const q = input.value.trim();
       if (!q) return;
-      addMsg(q, "user");
-      const a = answer(q);
-      addMsg(a, "bot");
+      askQuestion(q);
       input.value = "";
     });
   };
@@ -472,3 +534,5 @@
     init();
   }
 })();
+
+
