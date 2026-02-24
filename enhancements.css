@@ -67,8 +67,28 @@ body,
   color: #ffffff !important;
 }
 
-.x [data-ux="Nav"] a::after {
-  opacity: 0.9 !important;
+
+/* Headlines in sentence case (first letter uppercase) */
+.x h1,
+.x h2,
+.x h3,
+.x h4,
+.x h5,
+.x h6,
+.x [data-ux*="Heading"],
+.x [data-typography^="Heading"] {
+  text-transform: lowercase !important;
+}
+
+.x h1::first-letter,
+.x h2::first-letter,
+.x h3::first-letter,
+.x h4::first-letter,
+.x h5::first-letter,
+.x h6::first-letter,
+.x [data-ux*="Heading"]::first-letter,
+.x [data-typography^="Heading"]::first-letter {
+  text-transform: uppercase !important;
 }
 
 .x [data-stickynav="true"] {
@@ -683,7 +703,8 @@ body::after {
 
 @media (max-width: 767px) {
   .x [data-ux="Header"] [data-aid="HEADER_LOGO_RENDERED"] {
-    transform: translateY(-10px) !important;
+    transform: translateY(-14px) !important;
   }
 }
+
 
