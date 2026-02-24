@@ -56,6 +56,19 @@ body,
   letter-spacing: 0.02em;
   font-size: 0.98rem;
   text-transform: none;
+  color: #eaf2ff !important;
+  text-shadow: 0 1px 6px rgba(2, 10, 28, 0.35);
+}
+
+.x [data-ux="Nav"] a:hover,
+.x [data-ux="Nav"] a:focus-visible,
+.x [data-ux="NavLinkActive"],
+.x [data-ux="NavMenuLinkActive"] {
+  color: #ffffff !important;
+}
+
+.x [data-ux="Nav"] a::after {
+  opacity: 0.9 !important;
 }
 
 .x [data-stickynav="true"] {
@@ -176,7 +189,7 @@ body::after {
   }
 
   .x [data-ux="Header"] [data-aid="HEADER_LOGO_RENDERED"] {
-    transform: translateY(-8px);
+    transform: translateY(-12px);
   }
 
   .x [data-ux="Header"] [id^="navBarId-"] {
