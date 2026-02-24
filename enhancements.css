@@ -38,7 +38,7 @@ body,
 .x h6,
 .x [data-ux*="Heading"] {
   font-family: var(--font-heading) !important;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.015em;
   line-height: 1.18;
   color: var(--ink);
 }
@@ -53,7 +53,7 @@ body,
 .x [data-aid="HAMBURGER_MENU_LINK"] {
   font-family: var(--font-heading) !important;
   font-weight: 600 !important;
-  letter-spacing: 0.045em;
+  letter-spacing: 0.02em;
   font-size: 0.98rem;
   text-transform: none;
   color: #eaf2ff !important;
@@ -222,8 +222,10 @@ body::after {
   padding-bottom: clamp(40px, 5vw, 72px) !important;
 }
 
-
-  letter-spacing: 0.012em;
+.x p,
+.x [data-typography*="Body"] {
+  color: var(--ink-muted);
+  line-height: 1.7;
 }
 
 .x h1,
@@ -231,7 +233,7 @@ body::after {
 .x [data-typography="HeadingBeta"] {
   font-family: var(--font-hero) !important;
   font-weight: 800 !important;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.042em;
   line-height: 1.02;
   font-size: clamp(2.15rem, 5.2vw, 4.2rem) !important;
   text-wrap: balance;
@@ -704,6 +706,5 @@ body::after {
     transform: translateY(-14px) !important;
   }
 }
-
 
 
