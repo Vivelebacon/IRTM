@@ -1,9 +1,9 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+﻿@import url("https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&display=swap");
 
 :root {
-  --font-body: "Plus Jakarta Sans", "Segoe UI", Tahoma, sans-serif;
-  --font-heading: "Outfit", "Plus Jakarta Sans", "Segoe UI", sans-serif;
-  --font-hero: "Outfit", "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --font-body: "Host Grotesk", "Segoe UI", Tahoma, sans-serif;
+  --font-heading: "Host Grotesk", "Segoe UI", Tahoma, sans-serif;
+  --font-hero: "Host Grotesk", "Segoe UI", Tahoma, sans-serif;
   --surface: #ffffff;
   --surface-soft: #f8f9fb;
   --ink: #0f172e;
@@ -670,6 +670,7 @@ body::after {
     animation: none !important;
   }
 }
+
 
 
 
