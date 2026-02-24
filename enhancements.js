@@ -429,50 +429,47 @@
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[^a-z0-9\s]/g, " ")
         .replace(/\s+/g, " ")
-        .trim();
-
-    const predefinedQA = [
+        .trim();    const predefinedQA = [
       {
-        question: "Quels services propose ITRM ?",
+        question: "What services does ITRM provide?",
         patterns: [/services|staffing|recruit|placement|marketing|talent|hiring/],
         answer:
-          "ITRM combine staffing et support business: recrutement de profils qualifiés, accompagnement employeurs, parcours candidats et solutions orientées performance. Le site présente aussi des divisions dédiées, notamment dans le médical, avec une approche orientée qualité et rapidité d'exécution.",
+          "ITRM provides staffing and business support services, including talent sourcing, hiring support for employers, and candidate pathways. The company also highlights specialized divisions, including medical-focused staffing, with an emphasis on quality and speed.",
       },
       {
-        question: "Comment un employeur peut demander du personnel ?",
-        patterns: [/employ|employer|hire|staff|request|demande|personnel|talent/],
+        question: "How can an employer request staff?",
+        patterns: [/employ|employer|hire|staff|request|personnel|talent/],
         answer:
-          "Pour les employeurs, la voie recommandée est la section dédiée entreprises/employers et les formulaires de contact du site. Préparez vos besoins clés (poste, volume, rythme, compétences, localisation) et ITRM peut vous proposer un cadrage rapide puis des profils adaptés.",
+          "Employers should use the employer/business sections and contact forms available on the website. For faster matching, share role title, required skills, volume, schedule, location, and start timeline so ITRM can scope and deliver qualified profiles quickly.",
       },
       {
-        question: "Comment un candidat peut postuler ?",
-        patterns: [/job seeker|candidate|apply|application|postuler|emploi|carriere/],
+        question: "How can a job seeker apply?",
+        patterns: [/job seeker|candidate|apply|application|career|job|emploi|postuler/],
         answer:
-          "Côté candidats, utilisez les pages Job Seekers / Apply du site pour déposer votre candidature. Le plus efficace est d'envoyer un CV à jour, vos disponibilités, votre zone géographique et le type de mission souhaité pour accélérer le matching.",
+          "Job seekers can apply through the Job Seekers and Apply pages. The best approach is to submit an up-to-date resume, availability, preferred location, and target role type to improve the speed and quality of matching.",
       },
       {
-        question: "Qui sont les partenaires premium ?",
-        patterns: [/premier|premium|partner|partenaire/],
+        question: "Who are the premier partners?",
+        patterns: [/premier|premium|partner|partnership/],
         answer:
-          "Les partenaires premium sont affichés dans la section Premier Partners du site, désormais en carrousel dynamique. Cette zone met en avant les collaborations principales d'ITRM avec des marques et entreprises visibles sur la landing page.",
+          "Premier partners are displayed in the Premier Partners section of the website, now shown as a dynamic carousel. This section highlights key brand and business collaborations visible on the landing page.",
       },
       {
-        question: "Où se situe l’entreprise ?",
-        patterns: [/adresse|address|location|ou|where|localisation|situ/],
+        question: "Where is the company located?",
+        patterns: [/address|location|where|located|localisation|adresse/],
         answer:
           contacts.address
-            ? `L'adresse visible sur le site est: ${contacts.address}`
-            : "L'adresse est disponible dans le footer/contact du site. Ouvrez la section Contact pour les informations complètes.",
+            ? `The address displayed on the website is: ${contacts.address}`
+            : "The company address is available in the website footer and contact section.",
       },
       {
-        question: "Quel est le numéro principal de contact ?",
-        patterns: [/phone|tel|telephone|numero|contact|call/],
+        question: "What is the main contact number?",
+        patterns: [/phone|tel|telephone|number|contact|call|numero/],
         answer: contacts.phone
-          ? `Le numéro principal affiché sur le site est: ${contacts.phone}`
-          : "Le numéro principal est indiqué dans la zone Contact / footer du site.",
+          ? `The main contact number displayed on the website is: ${contacts.phone}`
+          : "The main contact number is listed in the contact area/footer of the website.",
       },
     ];
-
     const getPredefinedAnswer = (question) => {
       const normalizedQuestion = normalize(question);
       if (!normalizedQuestion) return "";
@@ -488,7 +485,7 @@
 
     const answer = (question) => {
       const q = (question || "").trim();
-      if (!q) return "Posez une question sur les services, les recrutements, les candidats, les partenaires ou le contact.";
+      if (!q) return "Ask about services, hiring, job seekers, partners, payment, or contact details.";
 
       const predefined = getPredefinedAnswer(q);
       if (predefined) return predefined;
@@ -501,7 +498,7 @@
         .slice(0, 2);
 
       if (!ranked.length) {
-        return "Je n'ai pas de réponse fiable sur ce point. Utilisez une question prédéfinie ou essayez: services, employeurs, candidats, partenaires, paiement, contact.";
+        return "I do not have a reliable direct answer for that yet. Try a predefined question or keywords like services, employers, job seekers, partners, payment, or contact.";
       }
 
       return ranked.map((r) => r.chunk).join(" ");
@@ -516,17 +513,17 @@
         <div class="itrm-chatbot__head">
           <span>ITRM Assistant</span>
           <span class="itrm-chatbot__subtitle">Website Help</span>
-          <button class="itrm-chatbot__close" type="button" id="itrmChatClose" aria-label="Fermer le chatbot">&times;</button>
+          <button class="itrm-chatbot__close" type="button" id="itrmChatClose" aria-label="Close chatbot">&times;</button>
         </div>
         <div class="itrm-chatbot__quick" id="itrmChatQuick">
           <p class="itrm-chatbot__quicktitle">Popular questions</p>
         </div>
         <div class="itrm-chatbot__msgs" id="itrmChatMsgs">
-          <p class="itrm-chatbot__msg bot">Bonjour, je peux répondre aux questions fréquentes sur ITRM.</p>
+          <p class="itrm-chatbot__msg bot">Hi, I can answer common questions about ITRM.</p>
         </div>
         <form class="itrm-chatbot__form" id="itrmChatForm">
-          <input class="itrm-chatbot__input" id="itrmChatInput" type="text" placeholder="Posez une question..." />
-          <button class="itrm-chatbot__send" type="submit">Envoyer</button>
+          <input class="itrm-chatbot__input" id="itrmChatInput" type="text" placeholder="Ask a question..." />
+          <button class="itrm-chatbot__send" type="submit">Send</button>
         </form>
       </div>
       <button class="itrm-chatbot__toggle" type="button" id="itrmChatToggle" aria-expanded="false" aria-label="Open chatbot">
@@ -626,6 +623,8 @@
     init();
   }
 })();
+
+
 
 
 
