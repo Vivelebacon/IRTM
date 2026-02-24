@@ -402,6 +402,7 @@
 
     const knowledge = getKnowledgeChunks();
     const contacts = extractContacts();
+    const memoryKey = "itrm_chat_memory_v2";
 
     const tokenize = (text) =>
       (text || "")
@@ -421,17 +422,76 @@
       return score;
     };
 
+    const normalize = (text) =>
+      (text || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const predefinedQA = [
+      {
+        question: "Quels services propose ITRM ?",
+        patterns: [/services|staffing|recruit|placement|marketing|talent|hiring/],
+        answer:
+          "ITRM combine staffing et support business: recrutement de profils qualifiés, accompagnement employeurs, parcours candidats et solutions orientées performance. Le site présente aussi des divisions dédiées, notamment dans le médical, avec une approche orientée qualité et rapidité d'exécution.",
+      },
+      {
+        question: "Comment un employeur peut demander du personnel ?",
+        patterns: [/employ|employer|hire|staff|request|demande|personnel|talent/],
+        answer:
+          "Pour les employeurs, la voie recommandée est la section dédiée entreprises/employers et les formulaires de contact du site. Préparez vos besoins clés (poste, volume, rythme, compétences, localisation) et ITRM peut vous proposer un cadrage rapide puis des profils adaptés.",
+      },
+      {
+        question: "Comment un candidat peut postuler ?",
+        patterns: [/job seeker|candidate|apply|application|postuler|emploi|carriere/],
+        answer:
+          "Côté candidats, utilisez les pages Job Seekers / Apply du site pour déposer votre candidature. Le plus efficace est d'envoyer un CV à jour, vos disponibilités, votre zone géographique et le type de mission souhaité pour accélérer le matching.",
+      },
+      {
+        question: "Qui sont les partenaires premium ?",
+        patterns: [/premier|premium|partner|partenaire/],
+        answer:
+          "Les partenaires premium sont affichés dans la section Premier Partners du site, désormais en carrousel dynamique. Cette zone met en avant les collaborations principales d'ITRM avec des marques et entreprises visibles sur la landing page.",
+      },
+      {
+        question: "Où se situe l’entreprise ?",
+        patterns: [/adresse|address|location|ou|where|localisation|situ/],
+        answer:
+          contacts.address
+            ? `L'adresse visible sur le site est: ${contacts.address}`
+            : "L'adresse est disponible dans le footer/contact du site. Ouvrez la section Contact pour les informations complètes.",
+      },
+      {
+        question: "Quel est le numéro principal de contact ?",
+        patterns: [/phone|tel|telephone|numero|contact|call/],
+        answer: contacts.phone
+          ? `Le numéro principal affiché sur le site est: ${contacts.phone}`
+          : "Le numéro principal est indiqué dans la zone Contact / footer du site.",
+      },
+    ];
+
+    const getPredefinedAnswer = (question) => {
+      const normalizedQuestion = normalize(question);
+      if (!normalizedQuestion) return "";
+
+      const exact = predefinedQA.find((item) => normalize(item.question) === normalizedQuestion);
+      if (exact) return exact.answer;
+
+      const matched = predefinedQA.find((item) =>
+        item.patterns.some((pattern) => pattern.test(normalizedQuestion))
+      );
+      return matched ? matched.answer : "";
+    };
+
     const answer = (question) => {
       const q = (question || "").trim();
-      if (!q) return "Ask me about services, hiring, job seekers, partners, payments, or contact details.";
+      if (!q) return "Posez une question sur les services, les recrutements, les candidats, les partenaires ou le contact.";
 
-      const lower = q.toLowerCase();
-      if (/phone|tel|contact|num|call|telephone/.test(lower) && contacts.phone) {
-        return `You can contact the team at ${contacts.phone}.`;
-      }
-      if (/address|where|location|located/.test(lower) && contacts.address) {
-        return `The address shown on the website is: ${contacts.address}`;
-      }
+      const predefined = getPredefinedAnswer(q);
+      if (predefined) return predefined;
 
       const tokens = tokenize(q);
       const ranked = knowledge
@@ -441,20 +501,13 @@
         .slice(0, 2);
 
       if (!ranked.length) {
-        return "I could not find a precise match in this page. Try keywords like services, employers, job seekers, apply, partners, payment, or contact.";
+        return "Je n'ai pas de réponse fiable sur ce point. Utilisez une question prédéfinie ou essayez: services, employeurs, candidats, partenaires, paiement, contact.";
       }
 
       return ranked.map((r) => r.chunk).join(" ");
     };
 
-    const quickQuestions = [
-      "What services does ITRM provide?",
-      "How can employers request staff?",
-      "How do job seekers apply?",
-      "Who are the premier partners?",
-      "Where is the company located?",
-      "What is the main contact number?",
-    ];
+    const quickQuestions = predefinedQA.map((item) => item.question);
 
     const root = document.createElement("div");
     root.className = "itrm-chatbot";
@@ -463,32 +516,34 @@
         <div class="itrm-chatbot__head">
           <span>ITRM Assistant</span>
           <span class="itrm-chatbot__subtitle">Website Help</span>
+          <button class="itrm-chatbot__close" type="button" id="itrmChatClose" aria-label="Fermer le chatbot">&times;</button>
         </div>
         <div class="itrm-chatbot__quick" id="itrmChatQuick">
           <p class="itrm-chatbot__quicktitle">Popular questions</p>
         </div>
         <div class="itrm-chatbot__msgs" id="itrmChatMsgs">
-          <p class="itrm-chatbot__msg bot">Hi, I can answer basic questions using this website content.</p>
+          <p class="itrm-chatbot__msg bot">Bonjour, je peux répondre aux questions fréquentes sur ITRM.</p>
         </div>
         <form class="itrm-chatbot__form" id="itrmChatForm">
-          <input class="itrm-chatbot__input" id="itrmChatInput" type="text" placeholder="Ask about services, hiring, contact..." />
-          <button class="itrm-chatbot__send" type="submit">Send</button>
+          <input class="itrm-chatbot__input" id="itrmChatInput" type="text" placeholder="Posez une question..." />
+          <button class="itrm-chatbot__send" type="submit">Envoyer</button>
         </form>
       </div>
       <button class="itrm-chatbot__toggle" type="button" id="itrmChatToggle" aria-expanded="false" aria-label="Open chatbot">
         <svg class="itrm-chatbot__icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 7.5c0-2 1.7-3.5 3.8-3.5h6.4C17.3 4 19 5.5 19 7.5v4.2c0 2-1.7 3.5-3.8 3.5h-4.3L7 18.5v-3.3c-1.2-.5-2-1.8-2-3.2V7.5z"></path>
-          <path d="M8.5 9.5h7M8.5 12h4.5"></path>
+          <path d="M8.25 6.75h7.5c1.52 0 2.75 1.23 2.75 2.75v4.5c0 1.52-1.23 2.75-2.75 2.75h-4.4L8 20v-3.25h-.25A2.75 2.75 0 0 1 5 14V9.5c0-1.52 1.23-2.75 2.75-2.75z"></path>
         </svg>
       </button>
     `;
     document.body.appendChild(root);
 
     const toggle = root.querySelector("#itrmChatToggle");
+    const closeBtn = root.querySelector("#itrmChatClose");
     const form = root.querySelector("#itrmChatForm");
     const input = root.querySelector("#itrmChatInput");
     const msgs = root.querySelector("#itrmChatMsgs");
     const quick = root.querySelector("#itrmChatQuick");
+    let memory = [];
 
     const addMsg = (text, role) => {
       const p = document.createElement("p");
@@ -496,6 +551,29 @@
       p.textContent = text;
       msgs.appendChild(p);
       msgs.scrollTop = msgs.scrollHeight;
+      memory.push({ role, text });
+      memory = memory.slice(-30);
+      try {
+        localStorage.setItem(memoryKey, JSON.stringify(memory));
+      } catch (_) {}
+    };
+
+    const renderMemory = () => {
+      try {
+        const raw = localStorage.getItem(memoryKey);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed) || !parsed.length) return;
+        msgs.innerHTML = "";
+        parsed.forEach((item) => {
+          if (!item || !item.text || !item.role) return;
+          const p = document.createElement("p");
+          p.className = `itrm-chatbot__msg ${item.role}`;
+          p.textContent = item.text;
+          msgs.appendChild(p);
+        });
+        memory = parsed.slice(-30);
+        msgs.scrollTop = msgs.scrollHeight;
+      } catch (_) {}
     };
 
     const askQuestion = (q) => {
@@ -519,6 +597,20 @@
       if (open) input.focus();
     });
 
+    closeBtn.addEventListener("click", () => {
+      root.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        root.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    renderMemory();
+
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const q = input.value.trim();
@@ -534,5 +626,7 @@
     init();
   }
 })();
+
+
 
 
